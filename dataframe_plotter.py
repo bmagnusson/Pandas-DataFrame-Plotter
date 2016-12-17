@@ -11,39 +11,6 @@ def datetime_to_hour(date_time):
            + date_time.microsecond / (3600. * 1e6)
 
 
-
-
-def filter_days(df_or_series, days_of_week=None, months=None):
-    """Return a slice of **df_or_series** that only includes the desired days and months.
-
-    Args:
-        df_or_series (DataFrame or Series): Object that you want to filter out certain days and months. The index must be of type *DatetimeIndex*.
-        days_of_week (int, list, or string): If *int* or *list* of ints, return only days of the week that match the *int(s)*, starting with Sunday as 0, and Saturday as 6. If *string*, there are two options: 'weekday' corresponds to Monday -> Friday. 'weekend' corresponds to Saturday and Sunday.
-
-    Returns:
-        slice (DataFrame or Series):
-    """
-
-    df_temp = pd.DataFrame(index=df_or_series.index)
-    if months:
-        if type(months) == int:
-            months = [months]
-        df_temp['month'] = df_temp.index.month
-        df_temp = df_temp[df_temp['month'].isin(months)]
-    if days_of_week:
-        # TODO: add 'holidays' option
-        if type(days_of_week) == int:
-            days_of_week = [days_of_week]
-        elif days_of_week in ['weekday', 'wkday']:
-            days_of_week = [0, 1, 2, 3, 4]
-        elif days_of_week in ['weekend', 'wkend']:
-            days_of_week = [5, 6]
-        df_temp['dayofweek'] = df_temp.index.dayofweek
-        df_temp = df_temp[df_temp['dayofweek'].isin(days_of_week)]
-
-    return df_or_series.loc[df_temp.index]
-
-
 def intervals_per_day(df_or_series):
     """Returns how many rows per day there are in **df_or_series**"""
     res = df_or_series.index[1] - df_or_series.index[0]
@@ -254,30 +221,6 @@ def average_day_plotter(series, plot=plt, label=None, color='blue',
     plot.plot(gp.index, gp.values, color=color, label=label, marker=marker)
     plot.set_xticks(np.arange(0, 24, 1))
     plot.set_xlim([0, 24])
-
-
-def filter_days_plotter(series, days_of_week=None, months=None,
-                        plot_type='overlay', width=12.4, height=5):
-    # TODO: handle lists of days_of_week and months
-    f, ax = plt.subplots(1, sharex=True, figsize=(width, height))
-    ax = [ax]
-    title = ''
-    if months:
-        title = 'Months: {}.'.format(months)
-    if days_of_week:
-        title = '{} Days of week: {}'.format(title, days_of_week)
-
-    s = filter_days(series, days_of_week, months)
-    i = 0
-    if plot_type == 'overlay':
-        overlay_days_plotter(s, ax[i])
-    elif plot_type == 'average':
-        average_day_plotter(s, ax[i])
-
-    ax[i].set_xlabel("Hour", fontsize=15)
-    ax[i].set_ylabel(s.name, fontsize=13)
-    ax[i].set_title(title, fontsize=18)
-    ax[i].grid(b=True, which='both')
 
 
 
